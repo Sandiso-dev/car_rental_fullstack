@@ -1,5 +1,6 @@
 
 import { Heart } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface CarCardProps {
   id: string;
@@ -12,7 +13,7 @@ interface CarCardProps {
   fuel_type: string;
 }
 
-const CarCard = ({ name, type, image, price_per_day, seats, transmission, fuel_type }: CarCardProps) => {
+const CarCard = ({ id, name, type, image, price_per_day, seats, transmission, fuel_type }: CarCardProps) => {
   return (
     <div className="bg-white rounded-lg shadow-lg p-4 space-y-4 animate-fade-up hover:shadow-xl transition-shadow">
       <div className="flex justify-between items-start">
@@ -24,13 +25,15 @@ const CarCard = ({ name, type, image, price_per_day, seats, transmission, fuel_t
           <Heart className="w-5 h-5" />
         </button>
       </div>
-      <div className="aspect-[16/9] relative overflow-hidden rounded-lg">
-        <img
-          src={image}
-          alt={name}
-          className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-300"
-        />
-      </div>
+      <Link to={`/car/${id}`} className="block">
+        <div className="aspect-[16/9] relative overflow-hidden rounded-lg">
+          <img
+            src={image}
+            alt={name}
+            className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-300"
+          />
+        </div>
+      </Link>
       <div className="grid grid-cols-2 gap-2 text-sm">
         <div className="flex items-center gap-1">
           <span className="font-medium">Seats:</span>
@@ -49,9 +52,12 @@ const CarCard = ({ name, type, image, price_per_day, seats, transmission, fuel_t
           <span>${price_per_day}/day</span>
         </div>
       </div>
-      <button className="w-full bg-primary text-white py-2 rounded-lg hover:bg-primary/90 transition-colors">
+      <Link 
+        to={`/car/${id}`}
+        className="block w-full bg-primary text-white py-2 rounded-lg hover:bg-primary/90 transition-colors text-center"
+      >
         Rent Now
-      </button>
+      </Link>
     </div>
   );
 };
