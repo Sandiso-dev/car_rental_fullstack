@@ -1,26 +1,53 @@
 
+import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import SearchForm from "@/components/SearchForm";
 import CarCard from "@/components/CarCard";
+import { supabase } from "@/integrations/supabase/client";
+
+interface Car {
+  id: string;
+  name: string;
+  type: string;
+  image: string;
+  price_per_day: number;
+  seats: number;
+  transmission: string;
+  fuel_type: string;
+  description: string | null;
+  location: string;
+  available: boolean;
+  created_at: string;
+  updated_at: string;
+}
 
 const Index = () => {
-  const cars = [
-    {
-      name: "Koenigsegg",
-      type: "Sport",
-      image: "/lovable-uploads/9e6e9feb-da61-4238-9bc6-c8f055b93044.png",
-    },
-    {
-      name: "Nissan GT-R",
-      type: "Sport",
-      image: "/lovable-uploads/9e6e9feb-da61-4238-9bc6-c8f055b93044.png",
-    },
-    {
-      name: "Rolls-Royce",
-      type: "Sedan",
-      image: "/lovable-uploads/9e6e9feb-da61-4238-9bc6-c8f055b93044.png",
-    },
-  ];
+  const [cars, setCars] = useState<Car[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCars = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("cars")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (error) {
+          console.error("Error fetching cars:", error);
+          return;
+        }
+
+        setCars(data || []);
+      } catch (error) {
+        console.error("Error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCars();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -56,9 +83,13 @@ const Index = () => {
             <button className="text-primary hover:underline">View All</button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {cars.map((car) => (
-              <CarCard key={car.name} {...car} />
-            ))}
+            {loading ? (
+              <p>Loading cars...</p>
+            ) : (
+              cars.map((car) => (
+                <CarCard key={car.id} {...car} />
+              ))
+            )}
           </div>
         </section>
       </main>
