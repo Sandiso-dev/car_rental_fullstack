@@ -74,6 +74,9 @@ const CarDetails = () => {
     setBookingLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
+      
+      console.log("Current user:", user); // Debug log
+      
       if (!user) {
         toast({
           title: "Authentication required",
@@ -84,27 +87,41 @@ const CarDetails = () => {
         return;
       }
 
-      const { error } = await supabase.from("bookings").insert({
+      console.log("Attempting to create booking with data:", {
         car_id: car.id,
         user_id: user.id,
         start_date: startDate.toISOString(),
         end_date: endDate.toISOString(),
         total_price: totalPrice,
-      });
+      }); // Debug log
 
-      if (error) throw error;
+      const { data, error } = await supabase.from("bookings").insert({
+        car_id: car.id,
+        user_id: user.id,
+        start_date: startDate.toISOString(),
+        end_date: endDate.toISOString(),
+        total_price: totalPrice,
+        status: 'pending' // Add a default status
+      }).select();
+
+      if (error) {
+        console.error("Supabase error details:", error); // Debug log
+        throw error;
+      }
+
+      console.log("Booking created successfully:", data); // Debug log
 
       toast({
         title: "Success",
         description: "Your booking has been confirmed!",
       });
       navigate("/");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating booking:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Could not create booking. Please try again.",
+        description: error.message || "Could not create booking. Please try again.",
       });
     } finally {
       setBookingLoading(false);
